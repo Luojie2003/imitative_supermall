@@ -11,6 +11,16 @@
   import BScroll from "better-scroll";
   export default {
     name: "Scroll",
+    props: {
+      probeType: {
+        type: Number,
+        default: 0
+      },
+      pullUpLoad: {
+        type: Boolean,
+        default: false
+      }
+    },
     data() {
       return {
         scroll: null
@@ -19,12 +29,30 @@
     mounted() {
       this.scroll = new BScroll(this.$refs.wrapper,{
         click:true,
+        probeType: this.probeType,
+        pullUpLoad: this.pullUpLoad
       });
-      this.scroll.scrollTo(0, 0);
+      // 监听滚动的位置
+      this.scroll.on('scroll', pos => {
+        // console.log(pos);
+        this.$emit('scroll', pos)
+      });
+      // 上拉加载更多
+      this.scroll.on('pullingUp', () => {
+        this.$emit('pullingUp')
+      })
+
+      // this.scroll.scrollTo(0, 0);
     },
     methods: {
       scrollTo(x, y, time=300){
-        this.scroll.scrollTo(x, y, time);
+        this.scroll && this.scroll.scrollTo() && this.scroll.scrollTo(x, y, time);
+      },
+      finishPullUp() {
+        this.scroll.finishPullUp()
+      },
+      refresh() {
+        this.scroll && this.scroll.refresh()
       }
     }
   }

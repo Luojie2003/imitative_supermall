@@ -1,17 +1,22 @@
 <template>
   <div id="home">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <scroll class="content" ref="scroll">
-      <home-swiper :banners="banners"></home-swiper>
-      <recommend-view :recommends="recommends"></recommend-view>
-      <feature-view></feature-view>
+    <scroll class="content"
+            ref="scroll"
+            :probe-type=3
+            @scroll="contentScroll"
+            :pull-up-load=true
+            @pullingUp="loadMore">
+      <home-swiper :banners="banners"/>
+      <recommend-view :recommends="recommends"/>
+      <feature-view/>
       <tab-control :titles="['流行', '新款', '精选']"
                    class="tab-control"
                    @tabClick="tabClick"
       ></tab-control>
-      <goods-list :goods=showGoods></goods-list>
+      <goods-list :goods=showGoods />
     </scroll>
-    <back-top @click.native="backClick"></back-top>
+    <back-top @click.native="backClick" v-show="isShowBackTop"/>
 
   </div>
 </template>
@@ -52,7 +57,8 @@
           'new': {page: 0,list: []},
           'sell': {page: 0,list: []},
         },
-        currentType: 'pop'
+        currentType: 'pop',
+        isShowBackTop: false
       }
     },
     computed: {
@@ -68,7 +74,11 @@
       this.getHomeGoods('pop');
       this.getHomeGoods('new');
       this.getHomeGoods('sell');
-
+      /** 监听item的图片加载*/
+      this.$bus.$on('itemImageLoad', () => {
+        // console.log("----");
+        this.$refs.scroll.refresh()
+      })
     },
     methods: {
       /**
@@ -90,6 +100,13 @@
       backClick() {
         this.$refs.scroll.scrollTo(0,0,500);
       },
+      contentScroll(pos) {
+        this.isShowBackTop = (-pos.y) > 1000
+      },
+      loadMore() {
+        // console.log('loadmore');
+        this.getHomeGoods(this.currentType);
+      },
       /**
        * 网络请求相关
        */
@@ -105,6 +122,10 @@
         getHomeGoods(type, page).then(res => {
           this.goods[type].list.push(...res.data.list);
           this.goods[type].page += 1;
+          // 刷新scroll的内容长度
+          // this.$refs.scroll.scroll.refresh()
+
+          this.$refs.scroll.finishPullUp()
         })
       }
 

@@ -85,7 +85,7 @@ export default {
 
   .info-service {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     line-height: 60px;
   }
 
@@ -97,7 +97,7 @@ export default {
   }
 
   .info-service-item span {
-    font-size: 13px;
+    font-size: 12px;
     color: #333;
   }
 </style>

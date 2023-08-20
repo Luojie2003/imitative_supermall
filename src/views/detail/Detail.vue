@@ -53,16 +53,12 @@ export default {
       console.log(res);
       const data = res.result;
       this.topImages = data.itemInfo.topImages
-
       // 2.获取商品信息
       this.goods = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
-
       // 3.创建店铺信息的对象
       this.shop = new Shop(data.shopInfo)
-
       // 4.保存商品的详情数据
       this.detailInfo = data.detailInfo;
-
       // 5.获取参数的信息
       this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
     })

@@ -11,6 +11,9 @@
       <detail-comment-info ref="comment" :comment-info="commentInfo"/>
       <goods-list ref="recommend" :goods="recommends"/>
     </scroll>
+    <back-top @click.native="backClick" v-show="isShowBackTop"/>
+
+    <detail-bottom-bar @addToCart="addToCart"/>
   </div>
 
 </template>
@@ -23,12 +26,13 @@ import DetailShopInfo from "@/views/detail/childComps/DetailShopInfo.vue";
 import DetailGoodsInfo from "@/views/detail/childComps/DetailGoodsInfo.vue";
 import DetailParamInfo from "@/views/detail/childComps/DetailParamInfo.vue";
 import DetailCommentInfo from '@/views/detail/childComps/DetailCommentInfo.vue'
+import DetailBottomBar from "@/views/detail/childComps/DetailBottomBar.vue";
 
 import Scroll from "@/components/common/scroll/Scroll.vue";
 import GoodsList from "@/components/content/goods/GoodsList.vue";
 
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from "@/network/detail";
-import {itemListenerMixin} from "@/common/mixin";
+import {itemListenerMixin, backTopMixin} from "@/common/mixin";
 import {debounce} from "@/common/utils";
 
 export default {
@@ -41,10 +45,12 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
+    DetailBottomBar,
+
     Scroll,
     GoodsList
   },
-  mixins: [itemListenerMixin],
+  mixins: [itemListenerMixin,backTopMixin],
   data() {
     return {
       iid: null,
@@ -128,6 +134,19 @@ export default {
             this.$refs.nav.currentIndex = this.currentIndex;
         }
       }
+      // 3.是否显示回到顶部
+      this.listenShowBackTop(pos)
+    },
+    addToCart() {
+      // 1.获取到商品
+      const product = {};
+      product.image = this.topImages[0];
+      product.title = this.detailInfo.title;
+      product.desc = this.detailInfo.desc;
+      product.price = this.detailInfo.newPrice;
+      product.iid = this.iid;
+      // 2.传递商品信息（VueX）
+      this.$store.dispatch('addCart', product)
     }
   },
   destroyed() {
@@ -149,6 +168,6 @@ export default {
   background-color: #fff;
 }
 .content {
-  height: calc(100% - 44px);
+  height: calc(100% - 44px - 58px);
 }
 </style>

@@ -42,7 +42,7 @@
 
   import {getHomeMultidata, getHomeGoods} from "@/network/home";
   import {debounce} from "@/common/utils";
-  import {itemListenerMixin} from "@/common/mixin";
+  import {itemListenerMixin, backTopMixin} from "@/common/mixin";
 
   export default {
     name: "Home",
@@ -66,13 +66,12 @@
           'sell': {page: 0,list: []},
         },
         currentType: 'pop',
-        isShowBackTop: false,
         tabOffsetTop: 0,
         isTabFixed: false,
         saveY: 0
       }
     },
-    mixins: [itemListenerMixin],
+    mixins: [itemListenerMixin, backTopMixin],
     computed: {
       showGoods() {
         return this.goods[this.currentType].list
@@ -130,12 +129,10 @@
         this.$refs.tabControl1.currentIndex = index;
         this.$refs.tabControl2.currentIndex = index;
       },
-      backClick() {
-        this.$refs.scroll.scrollTo(0,0,500);
-      },
+
       contentScroll(pos) {
-        // 1.判定BackTop是否显示
-        this.isShowBackTop = (-pos.y) > 1000
+        // 1.判定BackTop是否显示 -> 监听
+        this.listenShowBackTop(pos)
         // 2.决定tabControl是否吸顶
         this.isTabFixed = (-pos.y) > this.tabOffsetTop
       },

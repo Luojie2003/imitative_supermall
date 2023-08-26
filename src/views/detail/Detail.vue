@@ -1,14 +1,15 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"/>
-    <scroll class="content" ref="scroll">
+    <detail-nav-bar class="detail-nav" @titleClick="titleClick" ref="nav"/>
+    <scroll class="content" ref="scroll"
+            @scroll="contentScroll" :probe-type="3">
       <detail-swiper :top-images="topImages"/>
       <detail-base-info :goods="goods"/>
       <detail-shop-info :shop="shop"/>
-      <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"/>
-      <detail-param-info :param-info="paramInfo"/>
-      <detail-comment-info :comment-info="commentInfo"/>
-      <goods-list :goods="recommends"/>
+      <detail-goods-info :detail-info="detailInfo" @detailImageLoad="detailImageLoad"/>
+      <detail-param-info ref="params" :param-info="paramInfo"/>
+      <detail-comment-info ref="comment" :comment-info="commentInfo"/>
+      <goods-list ref="recommend" :goods="recommends"/>
     </scroll>
   </div>
 
@@ -28,6 +29,7 @@ import GoodsList from "@/components/content/goods/GoodsList.vue";
 
 import {getDetail, Goods, Shop, GoodsParam, getRecommend} from "@/network/detail";
 import {itemListenerMixin} from "@/common/mixin";
+import {debounce} from "@/common/utils";
 
 export default {
   name: "Detail",
@@ -52,7 +54,10 @@ export default {
       detailInfo: {},
       paramInfo: {},
       commentInfo: {},
-      recommends: []
+      recommends: [],
+      themeTopYs: [],
+      getThemeTopY: null,
+      currentIndex: 0
     }
   },
   created() {
@@ -81,10 +86,48 @@ export default {
     getRecommend().then(res => {
       this.recommends = res.data.list
     })
+    // 4.给getThemeTopY赋值
+    this.getThemeTopY = debounce(() => {
+      this.themeTopYs = [];
+      this.themeTopYs.push(0);
+      this.themeTopYs.push(this.$refs.params.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.comment.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.recommend.$el.offsetTop);
+      this.themeTopYs.push(Number.MAX_VALUE);
+
+      // console.log(this.themeTopYs);
+    }, 100)
   },
   methods: {
-    imageLoad() {
-      this.$refs.scroll.refresh()
+    // 4.详情页商品图片加载完毕
+    detailImageLoad() {
+      this.$refs.scroll.refresh();
+      this.getThemeTopY()
+    },
+    titleClick(index) {
+      // console.log(index);
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 100);
+    },
+    contentScroll(pos) {
+      // console.log(pos);
+      // 1.获取Y值
+      const posY = -pos.y;
+      // 2.posY和主题中的值进行比较
+      let length = this.themeTopYs.length;
+      for(let i = 0; i<length; i++){
+        // if(this.currentIndex !== i &&
+        //     ((i < length-1 && posY >= this.themeTopYs[i] && posY < this.themeTopYs[i+1])
+        //     || (i === length-1 && posY >= this.themeTopYs[i]))){
+        //   this.currentIndex = i;
+        //   // console.log(this.currentIndex);
+        //   this.$refs.nav.currentIndex = this.currentIndex;
+        // }
+        if(this.currentIndex !== i &&
+            (posY >= this.themeTopYs[i] && posY < this.themeTopYs[i+1])){
+            this.currentIndex = i;
+            this.$refs.nav.currentIndex = this.currentIndex;
+        }
+      }
     }
   },
   destroyed() {

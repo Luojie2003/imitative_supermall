@@ -141,9 +141,9 @@ export default {
       // 1.获取到商品
       const product = {};
       product.image = this.topImages[0];
-      product.title = this.detailInfo.title;
+      product.title = this.goods.title;
       product.desc = this.detailInfo.desc;
-      product.price = this.detailInfo.newPrice;
+      product.price = this.goods.realPrice;
       product.iid = this.iid;
       // 2.传递商品信息（VueX）
       this.$store.dispatch('addCart', product)

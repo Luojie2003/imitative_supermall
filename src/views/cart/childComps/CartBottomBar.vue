@@ -5,7 +5,7 @@
                  :isChecked="isSelectAll"></CheckButton>
     <span>全选</span>
     <span class="total-price">合计: ¥{{totalPrice}}</span>
-    <span class="buy-product">去计算({{cartLength}})</span>
+    <span class="buy-product">去计算({{selectCount}})</span>
   </div>
 </template>
 
@@ -35,6 +35,16 @@ export default {
       // return this.cartList.find(item => item.checked === false) === undefined;
       if (this.cartList.length === 0)return false
       return !this.cartList.find(item => !item.checked)
+    },
+    selectCount() {
+      let count = 0;
+      return this.cartList.filter(item => {
+        return item.checked
+      }).length
+
+      // return this.cartList.reduce((prev, cur) => {
+      //   if (cur.checked)cur = prev + 1
+      // },0);
     }
   },
   methods: {

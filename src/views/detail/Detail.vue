@@ -31,9 +31,10 @@ import DetailBottomBar from "@/views/detail/childComps/DetailBottomBar.vue";
 import Scroll from "@/components/common/scroll/Scroll.vue";
 import GoodsList from "@/components/content/goods/GoodsList.vue";
 
-import {getDetail, Goods, Shop, GoodsParam, getRecommend} from "@/network/detail";
+import { getDetail , Goods, Shop, GoodsParam, getRecommend} from "@/network/detail";
 import {itemListenerMixin, backTopMixin} from "@/common/mixin";
-import {debounce} from "@/common/utils";
+import { debounce } from "@/common/utils";
+import { mapActions } from 'vuex'
 
 export default {
   name: "Detail",
@@ -105,6 +106,7 @@ export default {
     }, 100)
   },
   methods: {
+    ...mapActions(['addCart']),
     // 4.详情页商品图片加载完毕
     detailImageLoad() {
       this.$refs.scroll.refresh();
@@ -146,7 +148,15 @@ export default {
       product.price = this.goods.realPrice;
       product.iid = this.iid;
       // 2.传递商品信息（VueX）
-      this.$store.dispatch('addCart', product)
+      // 弹窗方式1
+      this.addCart(product).then(res => {
+        this.$toast.show(res);
+      })
+      // 弹窗方式2
+      // this.$store.dispatch('addCart', product).then(res => {
+      //   console.log(res)
+      //   this.$toast.show(res)
+      // })
     }
   },
   destroyed() {

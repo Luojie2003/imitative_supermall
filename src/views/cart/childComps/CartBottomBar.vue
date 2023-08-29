@@ -5,7 +5,7 @@
                  :isChecked="isSelectAll"></CheckButton>
     <span>全选</span>
     <span class="total-price">合计: ¥{{totalPrice}}</span>
-    <span class="buy-product">去计算({{selectCount}})</span>
+    <span class="buy-product" @click="calcClick">去计算({{selectCount}})</span>
   </div>
 </template>
 
@@ -61,6 +61,11 @@ export default {
         this.$store.state.cartList.forEach(item => {
           item.checked = false;
         });
+      }
+    },
+    calcClick() {
+      if(!this.isSelectAll) {
+        this.$toast.show('请选择购买的商品')
       }
     }
   }

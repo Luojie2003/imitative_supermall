@@ -20,7 +20,9 @@ export default {
 
       setTimeout(() => {
         this.isShow = false;
-        // this.message = ''
+        setTimeout(() => {
+          this.message = ''
+        }, 500)
       }, duration)
     }
   }

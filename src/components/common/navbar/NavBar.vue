@@ -14,6 +14,8 @@ export default {
 
 <style scoped>
   .nav-bar {
+    position: relative;
+    z-index: 9;
     height: 44px;
     //background-color: #ff5777;
     display: flex;
